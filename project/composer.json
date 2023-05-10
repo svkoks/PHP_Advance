@@ -1,0 +1,21 @@
+{
+    "name": "geekbrains/project",
+    "autoload": {
+        "psr-4": {
+            "GeekBrains\\Project\\": "src/"
+        }
+    },
+    "require": {
+        "fakerphp/faker": "^1.21",
+        "php": "^7.4 || ^8.0",
+        "ext-pdo": "*",
+        "symfony/polyfill-uuid": "^1.27"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest",
+        "phpunit/phpunit": "^4.8"
+    },
+    "scripts": {
+        "test": "phpunit tests --testdox --colors"
+    }
+}
