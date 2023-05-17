@@ -11,6 +11,11 @@
         "ext-pdo": "*",
         "symfony/polyfill-uuid": "^1.27"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "GeekBrains\\Project\\tests\\": "tests/"
+        }
+    },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
         "phpunit/phpunit": "^4.8"
