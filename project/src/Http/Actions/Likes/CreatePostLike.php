@@ -37,7 +37,7 @@ class CreatePostLike implements ActionInterface
             return new ErrorResponse($e->getMessage());
         }
 
-        //TODO тоже и для юзера добавить
+
         try {
             $this->postRepository->get(new UUID($postUuid));
         } catch (PostNotFoundException $exception) {

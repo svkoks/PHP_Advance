@@ -1,5 +1,6 @@
 <?php
 
+use Psr\Log\LoggerInterface;
 use GeekBrains\Project\Http\Request;
 use GeekBrains\Project\Http\ErrorResponse;
 use GeekBrains\Project\Blog\Exceptions\AppException;
@@ -17,16 +18,20 @@ $request = new Request(
     file_get_contents('php://input'),
 );
 
+$logger = $container->get(LoggerInterface::class);
+
 try {
     $path = $request->path();
-} catch (HttpException) {
+} catch (HttpException $e) {
+    $logger->warning($e->getMessage());
     (new ErrorResponse)->send();
     return;
 }
 
 try {
     $method = $request->method();
-} catch (HttpException) {
+} catch (HttpException $e) {
+    $logger->warning($e->getMessage());
     (new ErrorResponse)->send();
     return;
 }
@@ -47,23 +52,24 @@ $routes = [
 
 ];
 
-if (!array_key_exists($method, $routes)) {
-    (new ErrorResponse("Route not found: $method $path"))->send();
-    return;
-}
-
-if (!array_key_exists($path, $routes[$method])) {
-    (new ErrorResponse("Route not found: $method $path"))->send();
+if (
+    !array_key_exists($method, $routes)
+    || !array_key_exists($path, $routes[$method])
+) {
+    $message = "Route not found: $method $path";
+    $logger->notice($message);
+    (new ErrorResponse($message))->send();
     return;
 }
 
 $actionClassName = $routes[$method][$path];
 
-$action = $container->get($actionClassName);
-
 try {
+    $action = $container->get($actionClassName);
     $response = $action->handle($request);
 } catch (AppException $e) {
-    (new ErrorResponse($e->getMessage()))->send();
+    $logger->error($e->getMessage(), ['exception' => $e]);
+    (new ErrorResponse)->send();
+    return;
 }
 $response->send();

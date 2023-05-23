@@ -10,15 +10,17 @@ use GeekBrains\Project\Person\Name;
 
 use GeekBrains\Project\Blog\Exсeptions\UserNotFoundException;
 use GeekBrains\Project\Blog\Repositories\UsersRepository\UsersRepositoryInterface;
-
+use Psr\Log\LoggerInterface;
 
 class SqliteUsersRepository implements UsersRepositoryInterface
 {
     private PDO $connection;
+    private LoggerInterface $logger;
 
-    public function __construct(PDO $connection)
+    public function __construct(PDO $connection, LoggerInterface $logger)
     {
         $this->connection = $connection;
+        $this->logger = $logger;
     }
 
     public function save(User $user): void
@@ -32,6 +34,8 @@ class SqliteUsersRepository implements UsersRepositoryInterface
             ':uuid' => (string)$user->uuid(),
             ':username' => $user->getLogin(),
         ]);
+
+        $this->logger->info("User created successfully: {$user->uuid()}");
     }
 
     public function get(UUID $uuid): User
@@ -58,10 +62,12 @@ class SqliteUsersRepository implements UsersRepositoryInterface
     private function getUser(PDOStatement $statement, string $strError): User
     {
         $result = $statement->fetch(PDO::FETCH_ASSOC);
+
         if ($result === false) {
-            throw new UserNotFoundException(
-                "Cannot find user: $strError"
-            );
+            $message = "Cannot find user: $strError";
+            $this->logger->warning($message);
+
+            throw new UserNotFoundException($message);
         }
 
         return new User(

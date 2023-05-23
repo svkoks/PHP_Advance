@@ -50,9 +50,9 @@ class DIContainer implements ContainerInterface
         // В этот массив мы будем собирать
         // объекты зависимостей класса
         $parameters = [];
+
         // Проходим по всем параметрам конструктора
         // (зависимостям класса)
-
         foreach ($constructor->getParameters() as $parameter) {
             // Узнаем тип параметра конструктора
             // (тип зависимости)
