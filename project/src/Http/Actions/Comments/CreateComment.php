@@ -23,21 +23,17 @@ class CreateComment implements ActionInterface
     public function __construct(
         private CommentsRepositoryInterface $commentsRepository,
         private PostsRepositoryInterface $postsRepository,
-        private UsersRepositoryInterface $usersRepository,
+        private TokenAuthenticationInterface $authentication
     ) {
     }
+    
+    
     public function handle(Request $request): Response
     {
         try {
-            $authorUuid = new UUID($request->jsonBodyField('author_uuid'));
-        } catch (HttpException | InvalidArgumentException $e) {
-            return new ErrorResponse($e->getMessage());
-        }
-        try {
-            $user = $this->usersRepository->get($authorUuid);
-        } catch (UserNotFoundException $e) {
-            return new ErrorResponse($e->getMessage());
-        }
+            $author = $this->authentication->user($request);
+        } catch (AuthException $exception) {
+            return new ErrorResponse($exception->getMessage());
 
         try {
             $postUuid = new UUID($request->jsonBodyField('post_uuid'));
@@ -56,7 +52,7 @@ class CreateComment implements ActionInterface
             $comment = new Comment(
                 $newCommentUuid,
                 $post,
-                $user,
+                $author,
                 $request->jsonBodyField('text'),
             );
         } catch (HttpException $e) {

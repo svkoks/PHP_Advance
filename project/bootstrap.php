@@ -6,6 +6,8 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Monolog\Handler\StreamHandler;
 use GeekBrains\Project\Blog\Container\DIContainer;
+use GeekBrains\Project\Http\Auth\PasswordAuthentication;
+use GeekBrains\Project\Http\Auth\AuthenticationInterface;
 use GeekBrains\Project\Blog\Repositories\PostsRepository\SqlitePostsRepository;
 use GeekBrains\Project\Blog\Repositories\UsersRepository\SqliteUsersRepository;
 use GeekBrains\Project\Blog\Repositories\PostsRepository\PostsRepositoryInterface;
@@ -52,6 +54,24 @@ if ('yes' === $_ENV['LOG_TO_CONSOLE']) {
         );
 }
 
+
+$container->bind(
+    TokenAuthenticationInterface::class,
+    BearerTokenAuthentication::class
+);
+
+
+$container->bind(
+    PasswordAuthenticationInterface::class,
+    PasswordAuthentication::class
+);
+
+
+$container->bind(
+    AuthTokensRepositoryInterface::class,
+    SqliteAuthTokensRepository::class
+);
+
 // $container->bind(
 //     IdentificationInterface::class,
 //     JsonBodyUuidIdentification::class
@@ -81,6 +101,16 @@ $container->bind(
 $container->bind(
     LikesRepositoryInterface::class,
     SqliteLikesRepository::class
+);
+
+$container->bind(
+    CommentsRepositoryInterface::class,
+    SqliteCommentsRepository::class
+);
+
+$container->bind(
+    AuthenticationInterface::class,
+    PasswordAuthentication::class
 );
 
 return $container;

@@ -14,13 +14,20 @@ use GeekBrains\Project\Http\Response;
 class DeletePost implements ActionInterface
 {
     public function __construct(
-        private PostsRepositoryInterface $postsRepository
+        private PostsRepositoryInterface $postsRepository,
+        private TokenAuthenticationInterface $authentication
     ) {
     }
 
 
     public function handle(Request $request): Response
     {
+        try {
+            $this->authentication->user($request);
+        } catch (AuthException $exception) {
+            return new ErrorResponse($exception->getMessage());
+        }
+        
         try {
             $postUuid = $request->query('uuid');
             $this->postsRepository->get(new UUID($postUuid));

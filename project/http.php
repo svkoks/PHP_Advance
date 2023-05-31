@@ -24,7 +24,7 @@ try {
     $path = $request->path();
 } catch (HttpException $e) {
     $logger->warning($e->getMessage());
-    (new ErrorResponse)->send();
+    (new ErrorResponse())->send();
     return;
 }
 
@@ -32,7 +32,7 @@ try {
     $method = $request->method();
 } catch (HttpException $e) {
     $logger->warning($e->getMessage());
-    (new ErrorResponse)->send();
+    (new ErrorResponse())->send();
     return;
 }
 
@@ -42,8 +42,11 @@ $routes = [
         '/users/show' => FindByUsername::class,
     ],
     'POST' => [
+        '/login' => LogIn::class,
+        '/logout' => LogOut::class,
         '/users/create' => CreateUser::class,
         '/posts/create' => CreatePost::class,
+        '/comments/create' => CreateComment::class,
         '/posts/likes/create' => CreatePostLike::class
     ],
     'DELETE' => [
@@ -69,7 +72,7 @@ try {
     $response = $action->handle($request);
 } catch (AppException $e) {
     $logger->error($e->getMessage(), ['exception' => $e]);
-    (new ErrorResponse)->send();
+    (new ErrorResponse())->send();
     return;
 }
 $response->send();

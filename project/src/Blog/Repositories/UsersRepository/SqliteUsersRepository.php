@@ -20,23 +20,29 @@ class SqliteUsersRepository implements UsersRepositoryInterface
     public function __construct(PDO $connection, LoggerInterface $logger)
     {
         $this->connection = $connection;
-        $this->logger = $logger;
+        //$this->logger = $logger;
     }
 
     public function save(User $user): void
     {
         $statement = $this->connection->prepare(
-            'INSERT INTO users (first_name, last_name, uuid, username) VALUES (:first_name, :last_name, :uuid, :username)'
+            'INSERT INTO users (first_name, last_name, uuid, username,  password) VALUES (:first_name, :last_name, :uuid, :username, :password)
+            ON CONFLICT (uuid) DO UPDATE SET
+            first_name = :first_name,
+            last_name = :last_name'
         );
+
         $statement->execute([
             ':first_name' => $user->getName()->getFirst(),
             ':last_name' => $user->getName()->getLast(),
             ':uuid' => (string)$user->uuid(),
             ':username' => $user->getLogin(),
+            ':password' => $user->hashedPassword(),
         ]);
 
-        $this->logger->info("User created successfully: {$user->uuid()}");
+        //$this->logger->info("User created successfully: {$user->uuid()}");
     }
+
 
     public function get(UUID $uuid): User
     {
@@ -47,6 +53,7 @@ class SqliteUsersRepository implements UsersRepositoryInterface
 
         return $this->getUser($statement, $uuid);
     }
+
 
     public function getByUsername(string $username): User
     {
@@ -64,16 +71,16 @@ class SqliteUsersRepository implements UsersRepositoryInterface
         $result = $statement->fetch(PDO::FETCH_ASSOC);
 
         if ($result === false) {
-            $message = "Cannot find user: $strError";
-            $this->logger->warning($message);
-
-            throw new UserNotFoundException($message);
+            throw new UserNotFoundException(
+                "Cannot find user: $strError"
+            );
         }
 
         return new User(
             new UUID($result['uuid']),
             new Name($result['first_name'], $result['last_name']),
             $result['username'],
+            $result['password']
         );
     }
 }

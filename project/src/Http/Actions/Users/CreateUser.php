@@ -25,13 +25,13 @@ class CreateUser implements ActionInterface
         try {
             $newUserUuid = UUID::random();
 
-            $user = new User(
-                $newUserUuid,
+            $user = User::createFrom(
+                $request->jsonBodyField('username'),
                 new Name(
                     $request->jsonBodyField('first_name'),
                     $request->jsonBodyField('last_name')
                 ),
-                $request->jsonBodyField('username')
+                $request->jsonBodyField('password'),
             );
         } catch (HttpException $e) {
             return new ErrorResponse($e->getMessage());

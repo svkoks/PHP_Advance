@@ -13,37 +13,27 @@ use GeekBrains\Project\Http\SuccessfulResponse;
 use GeekBrains\Project\Http\Actions\ActionInterface;
 use GeekBrains\Project\Blog\Exceptions\AuthException;
 use GeekBrains\Project\Blog\Exceptions\HttpException;
+use GeekBrains\Project\Http\Auth\AuthenticationInterface;
 use GeekBrains\Project\Http\Auth\IdentificationInterface;
 use GeekBrains\Project\Blog\Exсeptions\UserNotFoundException;
+use GeekBrains\Project\Http\Auth\TokenAuthenticationInterface;
 use GeekBrains\Project\Blog\Repositories\PostsRepository\PostsRepositoryInterface;
 use GeekBrains\Project\Blog\Repositories\UsersRepository\UsersRepositoryInterface;
-
 
 class CreatePost implements ActionInterface
 {
     public function __construct(
         private PostsRepositoryInterface $postsRepository,
         private LoggerInterface $logger,
-        private IdentificationInterface $identification
+        private TokenAuthenticationInterface $authentication
     ) {
     }
 
+
     public function handle(Request $request): Response
     {
-        // try {
-        //     $authorUuid = new UUID($request->jsonBodyField('author_uuid'));
-        // } catch (HttpException | InvalidArgumentException $e) {
-        //     return new ErrorResponse($e->getMessage());
-        // }
-
-        // try {
-        //     $user = $this->usersRepository->get($authorUuid);
-        // } catch (UserNotFoundException $e) {
-        //     return new ErrorResponse($e->getMessage());
-        // }
-
         try {
-            $user = $this->identification->user($request);
+            $author = $this->authentication->user($request);
         } catch (AuthException $e) {
             return new ErrorResponse($e->getMessage());
         }
@@ -53,7 +43,7 @@ class CreatePost implements ActionInterface
         try {
             $post = new Post(
                 $newPostUuid,
-                $user,
+                $author,
                 $request->jsonBodyField('title'),
                 $request->jsonBodyField('text'),
             );
@@ -63,7 +53,7 @@ class CreatePost implements ActionInterface
 
         $this->postsRepository->save($post);
 
-        $this->logger->info("Post created: $newPostUuid");
+        //$this->logger->info("Post created: $newPostUuid");
 
         return new SuccessfulResponse([
             'uuid' => (string)$newPostUuid,

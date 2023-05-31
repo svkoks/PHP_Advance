@@ -29,8 +29,12 @@ class CreateUserCommandTest extends TestCase
         $this->expectExceptionMessage('User already exists: Ivan');
 
         // Запускаем команду с аргументами
-        $command->handle(new Arguments(['username' => 'Ivan']));
+        $command->handle(new Arguments([
+            'username' => 'Ivan',
+            'password' => '123'
+        ]));
     }
+
 
     public function testItRequiresFirstName(): void
     {
@@ -61,7 +65,10 @@ class CreateUserCommandTest extends TestCase
         $this->expectException(ArgumentsException::class);
         $this->expectExceptionMessage('No such argument: first_name');
         // Запускаем команду
-        $command->handle(new Arguments(['username' => 'Ivan']));
+        $command->handle(new Arguments([
+            'username' => 'Ivan',
+            'password' => '123'
+        ]));
     }
 
 
@@ -78,6 +85,23 @@ class CreateUserCommandTest extends TestCase
             'first_name' => 'Ivan',
         ]));
     }
+
+
+    public function testItRequiresPassword(): void
+    {
+        $command = new CreateUserCommand(
+            $this->makeUsersRepository(),
+            new DummyLogger()
+        );
+        $this->expectException(ArgumentsException::class);
+        $this->expectExceptionMessage('No such argument:password');
+
+        $command->handle(new Arguments([
+            'username' => 'Ivan',
+            'password' => '123'
+        ]));
+    }
+
 
     private function makeUsersRepository(): UsersRepositoryInterface
     {
@@ -98,6 +122,7 @@ class CreateUserCommandTest extends TestCase
             }
         };
     }
+
 
     // Тест, проверяющий, что команда сохраняет пользователя в репозитории
     public function testItSavesUserToRepository(): void

@@ -46,6 +46,7 @@ class SqliteUsersRepositoryTest extends TestCase
                 ':username' => 'ivan123',
                 ':first_name' => 'Ivan',
                 ':last_name' => 'Nikitin',
+                ':password' => '123',
             ]);
         // 3. При вызове метода prepare стаб подключения
         // возвращает мок запроса
@@ -56,11 +57,13 @@ class SqliteUsersRepositoryTest extends TestCase
 
         // Вызываем метод сохранения пользователя
         $repository->save(
-            new User( // Свойства пользователя точно такие,
+            new User(
+                // Свойства пользователя точно такие,
                 // как и в описании мока
                 new UUID('81871f1a-02dc-4936-b7b5-5d10984d6f8c'),
                 new Name('Ivan', 'Nikitin'),
                 'ivan123',
+                '123',
             )
         );
     }
