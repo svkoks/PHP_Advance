@@ -10,13 +10,14 @@ use GeekBrains\Project\Http\Response;
 use GeekBrains\Project\Http\ErrorResponse;
 use GeekBrains\Project\Http\SuccessfulResponse;
 use GeekBrains\Project\Http\Actions\ActionInterface;
+use GeekBrains\Project\Blog\Exceptions\AuthException;
 use GeekBrains\Project\Blog\Exceptions\HttpException;
 use GeekBrains\Project\Blog\Exceptions\PostNotFoundException;
 use GeekBrains\Project\Blog\Exсeptions\UserNotFoundException;
+use GeekBrains\Project\Http\Auth\TokenAuthenticationInterface;
 use GeekBrains\Project\Blog\Repositories\PostsRepository\PostsRepositoryInterface;
 use GeekBrains\Project\Blog\Repositories\UsersRepository\UsersRepositoryInterface;
 use GeekBrains\Project\Blog\Repositories\CommentsRepository\CommentsRepositoryInterface;
-
 
 class CreateComment implements ActionInterface
 {
@@ -26,8 +27,8 @@ class CreateComment implements ActionInterface
         private TokenAuthenticationInterface $authentication
     ) {
     }
-    
-    
+
+
     public function handle(Request $request): Response
     {
         try {
@@ -35,32 +36,33 @@ class CreateComment implements ActionInterface
         } catch (AuthException $exception) {
             return new ErrorResponse($exception->getMessage());
 
-        try {
-            $postUuid = new UUID($request->jsonBodyField('post_uuid'));
-        } catch (HttpException | InvalidArgumentException $e) {
-            return new ErrorResponse($e->getMessage());
-        }
+            try {
+                $postUuid = new UUID($request->jsonBodyField('post_uuid'));
+            } catch (HttpException | InvalidArgumentException $e) {
+                return new ErrorResponse($e->getMessage());
+            }
 
-        try {
-            $post = $this->postsRepository->get($postUuid);
-        } catch (PostNotFoundException $e) {
-            return new ErrorResponse($e->getMessage());
-        }
+            try {
+                $post = $this->postsRepository->get($postUuid);
+            } catch (PostNotFoundException $e) {
+                return new ErrorResponse($e->getMessage());
+            }
 
-        $newCommentUuid = UUID::random();
-        try {
-            $comment = new Comment(
-                $newCommentUuid,
-                $post,
-                $author,
-                $request->jsonBodyField('text'),
-            );
-        } catch (HttpException $e) {
-            return new ErrorResponse($e->getMessage());
+            $newCommentUuid = UUID::random();
+            try {
+                $comment = new Comment(
+                    $newCommentUuid,
+                    $post,
+                    $author,
+                    $request->jsonBodyField('text'),
+                );
+            } catch (HttpException $e) {
+                return new ErrorResponse($e->getMessage());
+            }
+            $this->commentsRepository->save($comment);
+            return new SuccessfulResponse([
+                'uuid' => (string)$newCommentUuid,
+            ]);
         }
-        $this->commentsRepository->save($comment);
-        return new SuccessfulResponse([
-            'uuid' => (string)$newCommentUuid,
-        ]);
     }
 }

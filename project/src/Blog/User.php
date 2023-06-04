@@ -14,8 +14,8 @@ class User
     public function __construct(UUID $uuid, Name $name, string $login, string $hashedPassword)
     {
         $this->uuid = $uuid;
-        $this->name = $name;
         $this->username = $login;
+        $this->name = $name;
         $this->hashedPassword = $hashedPassword;
     }
 
@@ -31,7 +31,7 @@ class User
 
     private static function hash(string $password, UUID $uuid): string
     {
-        return hash('sha256',  $uuid . $password);
+        return hash('sha256', $uuid . $password);
     }
 
     public function checkPassword(string $password): bool

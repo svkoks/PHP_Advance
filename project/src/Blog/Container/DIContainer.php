@@ -3,8 +3,8 @@
 namespace GeekBrains\Project\Blog\Container;
 
 use ReflectionClass;
-use GeekBrains\Project\Blog\Exceptions\NotFoundException;
 use Psr\Container\ContainerInterface;
+use GeekBrains\Project\Blog\Exceptions\NotFoundException;
 
 class DIContainer implements ContainerInterface
 {

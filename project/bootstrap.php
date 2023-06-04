@@ -3,7 +3,12 @@
 use PDO;
 use Dotenv\Dotenv;
 use Monolog\Logger;
+use Faker\Generator;
+use Faker\Provider\Lorem;
 use Psr\Log\LoggerInterface;
+use Faker\Provider\ru_RU\Text;
+use Faker\Provider\ru_RU\Person;
+use Faker\Provider\ru_RU\Internet;
 use Monolog\Handler\StreamHandler;
 use GeekBrains\Project\Blog\Container\DIContainer;
 use GeekBrains\Project\Http\Auth\PasswordAuthentication;
@@ -53,6 +58,22 @@ if ('yes' === $_ENV['LOG_TO_CONSOLE']) {
             new StreamHandler("php://stdout")
         );
 }
+
+
+// Создаём объект генератора тестовых данных
+$faker = new Generator();
+// Инициализируем необходимые нам виды данных
+$faker->addProvider(new Person($faker));
+$faker->addProvider(new Text($faker));
+$faker->addProvider(new Internet($faker));
+$faker->addProvider(new Lorem($faker));
+
+// Добавляем генератор тестовых данных
+// в контейнер внедрения зависимостей
+$container->bind(
+    Generator::class,
+    $faker
+);
 
 
 $container->bind(

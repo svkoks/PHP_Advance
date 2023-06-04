@@ -64,7 +64,6 @@ class FindByUsernameActionTest extends TestCase
     // Тест, проверяющий, что будет возвращён удачный ответ,
     // если пользователь найден
     public function testItReturnsSuccessfulResponse(): void
-
     {
         $request = new Request(['username' => 'ivan'], [], '');
         // На этот раз в репозитории есть нужный нам пользователь
@@ -73,7 +72,7 @@ class FindByUsernameActionTest extends TestCase
                 UUID::random(),
                 new Name('Ivan', 'Nikitin'),
                 'ivan',
-
+                '123'
             ),
         ]);
         $action = new FindByUsername($usersRepository);
@@ -89,8 +88,7 @@ class FindByUsernameActionTest extends TestCase
     private function usersRepository(array $users): UsersRepositoryInterface
     {
         // В конструктор анонимного класса передаём массив пользователей
-        return new class($users) implements UsersRepositoryInterface
-        {
+        return new class ($users) implements UsersRepositoryInterface {
             public function __construct(
                 private array $users
             ) {

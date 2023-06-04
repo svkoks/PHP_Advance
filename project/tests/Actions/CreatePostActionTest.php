@@ -2,7 +2,6 @@
 
 namespace GeekBrains\Project\tests\Actions;
 
-
 use PHPUnit\Framework\TestCase;
 use GeekBrains\Project\Blog\Post;
 use GeekBrains\Project\Blog\User;
@@ -17,6 +16,7 @@ use GeekBrains\Project\Blog\Exceptions\JsonException;
 use GeekBrains\Project\Http\Actions\Posts\CreatePost;
 use GeekBrains\Project\Blog\Exceptions\PostNotFoundException;
 use GeekBrains\Project\Blog\Exсeptions\UserNotFoundException;
+use GeekBrains\Project\Http\Auth\TokenAuthenticationInterface;
 use GeekBrains\Project\Http\Auth\JsonBodyUsernameIdentification;
 use GeekBrains\Project\Blog\Repositories\PostsRepository\PostsRepositoryInterface;
 use GeekBrains\Project\Blog\Repositories\UsersRepository\UsersRepositoryInterface;
@@ -25,8 +25,7 @@ class CreatePostActionTest extends TestCase
 {
     private function postsRepository(): PostsRepositoryInterface
     {
-        return new class() implements PostsRepositoryInterface
-        {
+        return new class () implements PostsRepositoryInterface {
             private bool $called = false;
 
             public function __construct()
@@ -61,8 +60,7 @@ class CreatePostActionTest extends TestCase
 
     private function usersRepository(array $users): UsersRepositoryInterface
     {
-        return new class($users) implements UsersRepositoryInterface
-        {
+        return new class ($users) implements UsersRepositoryInterface {
             public function __construct(
                 private array $users
             ) {
@@ -93,7 +91,7 @@ class CreatePostActionTest extends TestCase
     public function testItReturnsSuccessAnswer(): void
     {
         $postsRepositoryStub = $this->createStub(PostsRepositoryInterface::class);
-        $authenticationStub = $this->createStub(JsonBodyUsernameIdentification::class);
+        $authenticationStub = $this->createStub(TokenAuthenticationInterface::class);
 
         $authenticationStub
             ->method('user')
@@ -102,6 +100,7 @@ class CreatePostActionTest extends TestCase
                     new UUID("81871f1a-02dc-4936-b7b5-5d10984d6f8c"),
                     new Name('firstName', 'lastName'),
                     'username',
+                    '123'
                 )
             );
 
@@ -136,7 +135,7 @@ class CreatePostActionTest extends TestCase
     {
         $request = new Request([], [], '{"author_uuid":"81871f1a-02dc-4936-b7b5-5d10984d6f8c","title":"Header of post","text":"Posts text"}');
 
-        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
+        $authenticationStub = $this->createStub(TokenAuthenticationInterface::class);
 
         $authenticationStub
             ->method('user')
@@ -145,6 +144,7 @@ class CreatePostActionTest extends TestCase
                     new UUID('81871f1a-02dc-4936-b7b5-5d10984d6f8c'),
                     new Name('firstName', 'lastName'),
                     'username',
+                    '123'
                 )
             );
 
@@ -185,7 +185,7 @@ class CreatePostActionTest extends TestCase
         $request = new Request([], [], '{"author_uuid":"81871f1a-02dc-4936-b7b5-5d10984d6f8c","title":"Header of post","text":"Posts text"}');
 
         $postsRepositoryStub = $this->createStub(PostsRepositoryInterface::class);
-        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
+        $authenticationStub = $this->createStub(TokenAuthenticationInterface::class);
 
         $authenticationStub
             ->method('user')
@@ -213,7 +213,7 @@ class CreatePostActionTest extends TestCase
         $request = new Request([], [], '{"author_uuid":"81871f1a-02dc-4936-b7b5-5d10984d6f8c","title":"Header of post"}');
 
         $postsRepository = $this->postsRepository([]);
-        $authenticationStub = $this->createStub(JsonBodyUuidIdentification::class);
+        $authenticationStub = $this->createStub(TokenAuthenticationInterface::class);
         $authenticationStub
             ->method('user')
             ->willReturn(
@@ -221,6 +221,7 @@ class CreatePostActionTest extends TestCase
                     new UUID('81871f1a-02dc-4936-b7b5-5d10984d6f8c'),
                     new Name('firstName', 'lastName'),
                     'username',
+                    '123'
                 )
             );
 

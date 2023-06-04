@@ -2,9 +2,7 @@
 
 namespace GeekBrains\Project\Blog\Exceptions;
 
-use Exception;
-
-class NotFoundException extends AppException
+class PostsRepositoryException extends AppException
 {
     //
 }
